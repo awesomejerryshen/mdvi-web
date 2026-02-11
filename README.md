@@ -145,20 +145,31 @@ Works in all modern browsers that support WebAssembly:
 
 ## Deployment
 
-### GitHub Pages
+### GitHub Pages (Automated with GitHub Actions)
 
-1. Build the project:
-   ```bash
-   npm run build:wasm
-   ```
+This project uses GitHub Actions for automatic deployment. Simply push to the `main` branch and the workflow will:
 
-2. Deploy to GitHub Pages using gh-pages:
-   ```bash
-   npm install -g gh-pages
-   gh-pages -d . -b gh-pages
-   ```
+1. Build the WebAssembly module
+2. Deploy to the `gh-pages` branch
+3. Update GitHub Pages automatically
 
-3. Enable GitHub Pages in your repository settings (source: `gh-pages` branch)
+**To enable GitHub Pages:**
+
+1. Go to repository **Settings** > **Pages**
+2. Select **Source:** Deploy from a branch
+3. Select **Branch:** `gh-pages`
+4. Select **Folder:** `/ (root)`
+5. Click **Save**
+
+That's it! Every push to `main` will automatically build and deploy.
+
+**To deploy manually (not recommended):**
+
+```bash
+npm run build:wasm
+npm install -g gh-pages
+gh-pages -d . -b gh-pages
+```
 
 ### Other Static Hosting
 
