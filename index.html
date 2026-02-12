@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mdvi-web - Markdown Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: #2d2d2d;
+            border-bottom: 1px solid #3d3d3d;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            color: #4ec9b0;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #1177bb;
+        }
+
+        .status-bar {
+            background: #007acc;
+            color: white;
+            padding: 0.25rem 1rem;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .main-content {
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            overflow-y: auto;
+            max-height: calc(100vh - 120px);
+        }
+
+        .markdown-content {
+            font-size: 1rem;
+        }
+
+        .markdown-content h1 {
+            color: #4ec9b0;
+            border-bottom: 1px solid #3d3d3d;
+            padding-bottom: 0.3em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+
+        .markdown-content h2 {
+            color: #569cd6;
+            border-bottom: 1px solid #3d3d3d;
+            padding-bottom: 0.3em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+
+        .markdown-content h3,
+        .markdown-content h4,
+        .markdown-content h5,
+        .markdown-content h6 {
+            color: #dcdcaa;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+
+        .markdown-content p {
+            margin-bottom: 1em;
+        }
+
+        .markdown-content a {
+            color: #9cdcfe;
+            text-decoration: underline;
+        }
+
+        .markdown-content code {
+            background: #2d2d2d;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: #ce9178;
+        }
+
+        .markdown-content pre {
+            background: #1e1e1e;
+            border: 1px solid #3d3d3d;
+            border-radius: 6px;
+            padding: 1em;
+            overflow-x: auto;
+            margin-bottom: 1em;
+        }
+
+        .markdown-content pre code {
+            background: none;
+            padding: 0;
+            color: #d4d4d4;
+        }
+
+        .markdown-content blockquote {
+            border-left: 4px solid #569cd6;
+            padding-left: 1em;
+            margin-left: 0;
+            color: #808080;
+        }
+
+        .markdown-content ul,
+        .markdown-content ol {
+            margin-left: 2em;
+            margin-bottom: 1em;
+        }
+
+        .markdown-content li {
+            margin-bottom: 0.25em;
+        }
+
+        .markdown-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 1em;
+        }
+
+        .markdown-content th,
+        .markdown-content td {
+            border: 1px solid #3d3d3d;
+            padding: 0.5em;
+            text-align: left;
+        }
+
+        .markdown-content th {
+            background: #2d2d2d;
+        }
+
+        .markdown-content hr {
+            border: none;
+            border-top: 1px solid #3d3d3d;
+            margin: 2em 0;
+        }
+
+        .markdown-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin: 1em 0;
+        }
+
+        .placeholder {
+            text-align: center;
+            color: #808080;
+            margin-top: 4em;
+        }
+
+        .placeholder h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1em;
+            color: #4ec9b0;
+        }
+
+        .placeholder p {
+            margin-bottom: 2em;
+        }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: #808080;
+        }
+
+        .loading {
+            text-align: center;
+            color: #4ec9b0;
+            margin-top: 4em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>mdvi-web</h1>
+        <div class="header-controls">
+            <button class="btn" onclick="document.getElementById('fileInput').click()">Open File</button>
+            <input type="file" id="fileInput" class="file-input" accept=".md,.markdown,.txt" />
+            <span class="help-text">j/k or ↑/↓ to scroll | q to quit</span>
+        </div>
+    </div>
+
+    <div class="status-bar" id="statusBar">
+        <span id="statusText">No file loaded</span>
+        <span id="scrollPosition"></span>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <div class="placeholder" id="placeholder">
+            <h2>📄 mdvi-web</h2>
+            <p>WebAssembly-powered Markdown Viewer</p>
+            <button class="btn" onclick="document.getElementById('fileInput').click()">Open a Markdown File</button>
+        </div>
+        <div class="markdown-content" id="markdownContent" style="display: none;"></div>
+        <div class="loading" id="loading" style="display: none;">Loading...</div>
+    </div>
+
+    <script type="module">
+        import init, { parse_markdown } from './pkg/mdvi_web.js';
+
+        let wasmInitialized = false;
+
+        // Initialize WASM
+        async function initWasm() {
+            if (wasmInitialized) return;
+            try {
+                await init();
+                wasmInitialized = true;
+                console.log('WASM initialized');
+            } catch (error) {
+                console.error('Failed to initialize WASM:', error);
+                document.getElementById('statusText').textContent = 'Error: WASM failed to load';
+            }
+        }
+
+        // Initialize on page load
+        initWasm();
+
+        // File input handler
+        document.getElementById('fileInput').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show loading
+            document.getElementById('placeholder').style.display = 'none';
+            document.getElementById('markdownContent').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('statusText').textContent = `Loading: ${file.name}`;
+
+            try {
+                // Ensure WASM is initialized
+                await initWasm();
+
+                // Read file
+                const text = await file.text();
+
+                // Parse markdown
+                const html = parse_markdown(text);
+
+                // Display result
+                document.getElementById('markdownContent').innerHTML = html;
+                document.getElementById('markdownContent').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('statusText').textContent = `Loaded: ${file.name}`;
+
+                updateScrollPosition();
+            } catch (error) {
+                console.error('Error parsing markdown:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('placeholder').style.display = 'block';
+                document.getElementById('statusText').textContent = 'Error: Failed to parse file';
+                alert('Error parsing markdown file: ' + error.message);
+            }
+        });
+
+        // Keyboard navigation (Vim-style)
+        document.addEventListener('keydown', (event) => {
+            const mainContent = document.getElementById('mainContent');
+            const scrollAmount = Math.max(40, Math.floor(window.innerHeight * 0.4));
+
+            switch (event.key) {
+                case 'j':
+                case 'ArrowDown':
+                    event.preventDefault();
+                    mainContent.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+                    break;
+                case 'k':
+                case 'ArrowUp':
+                    event.preventDefault();
+                    mainContent.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
+                    break;
+                case 'd':
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        mainContent.scrollBy({ top: Math.floor(window.innerHeight * 0.5), behavior: 'smooth' });
+                    }
+                    break;
+                case 'u':
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        mainContent.scrollBy({ top: -Math.floor(window.innerHeight * 0.5), behavior: 'smooth' });
+                    }
+                    break;
+                case 'PageDown':
+                case 'f':
+                    event.preventDefault();
+                    mainContent.scrollBy({ top: window.innerHeight - 100, behavior: 'smooth' });
+                    break;
+                case 'PageUp':
+                case 'b':
+                    event.preventDefault();
+                    mainContent.scrollBy({ top: -(window.innerHeight - 100), behavior: 'smooth' });
+                    break;
+                case 'g':
+                case 'Home':
+                    event.preventDefault();
+                    mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+                    break;
+                case 'G':
+                case 'End':
+                    event.preventDefault();
+                    mainContent.scrollTo({ top: mainContent.scrollHeight, behavior: 'smooth' });
+                    break;
+                case 'q':
+                    event.preventDefault();
+                    if (confirm('Quit and clear content?')) {
+                        document.getElementById('markdownContent').style.display = 'none';
+                        document.getElementById('markdownContent').innerHTML = '';
+                        document.getElementById('placeholder').style.display = 'block';
+                        document.getElementById('statusText').textContent = 'No file loaded';
+                        document.getElementById('fileInput').value = '';
+                    }
+                    break;
+            }
+
+            updateScrollPosition();
+        });
+
+        // Update scroll position display
+        function updateScrollPosition() {
+            const mainContent = document.getElementById('mainContent');
+            const scrollTop = mainContent.scrollTop;
+            const scrollHeight = mainContent.scrollHeight - mainContent.clientHeight;
+            const percent = scrollHeight > 0 ? Math.round((scrollTop / scrollHeight) * 100) : 0;
+            document.getElementById('scrollPosition').textContent = `Scroll: ${percent}%`;
+        }
+
+        // Update scroll position on scroll
+        document.getElementById('mainContent').addEventListener('scroll', updateScrollPosition);
+    </script>
+</body>
+</html>

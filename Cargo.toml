@@ -1,0 +1,19 @@
+[package]
+name = "mdvi-web"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jerry Shen <awesomejerryshen@gmail.com>"]
+description = "WebAssembly-based Markdown viewer"
+license = "MIT"
+repository = "https://github.com/awesomejerryshen/mdvi-web"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pulldown-cmark = "0.12"
+wasm-bindgen = "0.2"
+
+[profile.release]
+opt-level = "z"
+lto = true

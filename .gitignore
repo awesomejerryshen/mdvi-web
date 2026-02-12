@@ -1,0 +1,23 @@
+# Rust
+/target/
+Cargo.lock
+
+# WASM build artifacts - pkg/ directory is included for GitHub Pages deployment
+# All files in pkg/ are needed for the web application to work
+
+# Node
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+*.test.md

@@ -1,0 +1,24 @@
+{
+  "name": "mdvi-web",
+  "type": "module",
+  "collaborators": [
+    "Jerry Shen <awesomejerryshen@gmail.com>"
+  ],
+  "description": "WebAssembly-based Markdown viewer",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/awesomejerryshen/mdvi-web"
+  },
+  "files": [
+    "mdvi_web_bg.wasm",
+    "mdvi_web.js",
+    "mdvi_web.d.ts"
+  ],
+  "main": "mdvi_web.js",
+  "types": "mdvi_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
