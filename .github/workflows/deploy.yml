@@ -42,12 +42,8 @@ jobs:
       - name: Build WebAssembly
         run: npm run build:wasm
 
-      - name: Verify pkg directory
-        run: |
-          echo "Listing pkg directory contents:"
-          ls -la pkg/
-          echo "Checking if .gitignore exists in pkg:"
-          ls -la pkg/.gitignore 2>/dev/null || echo "No .gitignore in pkg/"
+      - name: Remove pkg/.gitignore
+        run: rm -f pkg/.gitignore
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
