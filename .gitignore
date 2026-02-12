@@ -2,12 +2,8 @@
 /target/
 Cargo.lock
 
-# WASM build artifacts (keep pkg/ for GitHub Pages deployment)
-# pkg/ is not ignored so it can be deployed to GitHub Pages
-# *.wasm, *.js, *.ts are ignored except in pkg/ directory
-*.wasm
-*.js
-*.ts
+# WASM build artifacts - pkg/ directory is included for GitHub Pages deployment
+# All files in pkg/ are needed for the web application to work
 
 # Node
 node_modules/
